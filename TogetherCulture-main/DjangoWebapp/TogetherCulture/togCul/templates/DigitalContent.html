@@ -1,0 +1,337 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Content</title>
+    <link href="{% static 'togCul/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <script src="{% static 'togCul/js/bootstrap.bundle.min.js' %}"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      .section {
+        margin-bottom: 40px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .section-header h2 {
+        margin: 0;
+      }
+
+      .add-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .add-button:hover {
+        background-color: #0056b3;
+      }
+
+      .card img {
+        height: 200px;
+        object-fit: cover;
+      }
+
+      .section-1 {
+        background-color: #f9f9f9;
+      }
+
+      .section-2 {
+        background-color: #e9ecef;
+      }
+
+      .custom-modal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(
+          0,
+          0,
+          0,
+          0.5
+        ); /* Black background with opacity */
+      }
+
+      /* Modal content */
+      .custom-modal-content {
+        max-width: 600px;
+        word-wrap: break-word;
+      }
+
+      /* Close button */
+      .custom-modal-close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .custom-modal-close:hover,
+      .custom-modal-close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Together Culture</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-5">
+      <!-- Digital Content Section -->
+      <section class="section section-1">
+        <h2>Available Digital Content</h2>
+        <div class="row">
+          {% for content in digital_contents %}
+          <div class="col-md-4">
+            <div class="card">
+              <img
+                src="{{ content.image.url }}"
+                class="card-img-top"
+                alt="{{ content.contentName }}"
+              />
+              <div class="card-body">
+                <h5 class="card-title">{{ content.contentName }}</h5>
+                <p class="card-text">{{ content.createdDate }}</p>
+                {% if content.id in registered_content_ids %}
+                <button class="btn btn-secondary" disabled>Registered</button>
+                {% else %}
+                <button
+                  class="btn btn-primary register-btn"
+                  data-content-id="{{ content.id }}"
+                >
+                  Register
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="section section-2">
+        <h2>Registered Digital Content</h2>
+        <div class="row">
+          {% for registered in registered_contents %}
+          <div class="col-md-4">
+            <div class="card">
+              <img
+                src="{{ registered.digitalContent.image.url }}"
+                class="card-img-top"
+                alt="{{ registered.digitalContent.contentName }}"
+              />
+              <div class="card-body">
+                <h5 class="card-title">
+                  {{ registered.digitalContent.contentName }}
+                </h5>
+                <p class="card-text">
+                  {{ registered.digitalContent.contentDescription }}
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+
+    <!-- Add Digital Content Modal -->
+    <div
+      class="modal fade"
+      id="addDigitalContentModal"
+      tabindex="-1"
+      aria-labelledby="addDigitalContentModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form
+            method="POST"
+            action="{% url 'add_digital_content' %}"
+            enctype="multipart/form-data"
+          >
+            {% csrf_token %}
+            <div class="modal-header">
+              <h5 class="modal-title" id="addDigitalContentModalLabel">
+                Add Digital Content
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="contentName" class="form-label">Content Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="contentName"
+                  name="contentName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="contentDescription" class="form-label"
+                  >Content Description</label
+                >
+                <textarea
+                  class="form-control"
+                  id="contentDescription"
+                  name="contentDescription"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="accessBy" class="form-label">Access By</label>
+                <select
+                  class="form-select"
+                  id="accessBy"
+                  name="accessBy"
+                  required
+                >
+                  <option value="T1">T1</option>
+                  <option value="T2">T2</option>
+                  <option value="T3">T3</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="image" class="form-label">Image</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="image"
+                  name="image"
+                  accept="image/*"
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- prettier-ignore -->
+    <div id="customModal" class="custom-modal">
+  <div class="custom-modal-content">
+    <span class="custom-modal-close">&times;</span>
+    <h5>Content Description</h5>
+    <p id="customContentDescription" style="color: black; font-size: 16px;"></p>
+    <button id="customModalOk" class="btn btn-primary">OK</button>
+  </div>
+</div>
+    <!-- prettier-ignore -->
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const registerButtons = document.querySelectorAll(".register-btn");
+
+    // Get CSRF token from the cookie
+    function getCSRFToken() {
+      const cookies = document.cookie.split("; ");
+      for (let cookie of cookies) {
+        const [name, value] = cookie.split("=");
+        if (name === "csrftoken") {
+          return value;
+        }
+      }
+      return null;
+    }
+
+    const csrfToken = getCSRFToken();
+
+    registerButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const contentId = this.getAttribute("data-content-id");
+
+        fetch(`/register-digital-content/${contentId}/`, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": csrfToken, // Include CSRF token
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return response.json().then((data) => {
+                throw new Error(data.error || "Failed to register.");
+              });
+            }
+          })
+          .then((data) => {
+            alert(data.message); // Show success message
+            window.location.reload(); // Reload the page to update the registered content section
+          })
+          .catch((error) => {
+            alert(error.message); // Show error message
+          });
+      });
+    });
+  });
+</script>
+  </body>
+</html>
