@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 1rem;
+        }
+
+        nav ul li a:hover {
+            color: #007bff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .container h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .form-group input[readonly] {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a class="navbar-brand" href="{% url 'home' %}">Together Culture</a>
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2>User Profile</h2>
+        <form>
+            <div class="form-group">
+                <label for="full_name">Full Name:</label>
+                <input type="text" id="full_name" value="{{ user_data.full_name }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="{{ user_data.email }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="membershipstatus">Membership Status:</label>
+                <input type="text" id="membershipstatus" value="{{ user_data.membershipstatus }}" readonly>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
